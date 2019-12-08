@@ -1,0 +1,32 @@
+# 这是一个TOML文件
+
+title = "TOML Example"
+
+[owner]
+name = "Lance Uppercut"
+dob = 1980-08-02T12:10:03.001 # 日期是一等公民
+
+[database]
+server = "192.168.1.1"
+ports = [ 8001, 8001, 8002 ]
+connection_max = 5000
+enabled = true
+
+[servers]
+  #你可以使用空格、制表符进行缩进，或者根本不缩进。TOML不关心缩进。
+  [servers.alpha]
+  ip = "10.0.0.1"
+  dc = "eqdc10"
+
+  [servers.beta]
+  ip = "10.0.0.2"
+  dc = "eqdc10"
+
+[clients]
+data = [ ["gamma", "delta"], [1, 2] ]
+
+# 数组内可以混入换行符
+hosts = [
+  "alpha",
+  "omega"
+]

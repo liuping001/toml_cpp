@@ -39,7 +39,7 @@ void Print(std::shared_ptr<cpptoml::base> ptr, const std::string &key, CppOut &s
   } else if (ptr->is_table()) {
     ss.make_struct << depth<< BigWord(key) <<" "<< key <<"; \n";
   } else if (ptr->is_table_array()) {
-    ss.make_struct << depth << "std::vector<" << BigWord(key) <<"> " << key << "\n";
+    ss.make_struct << depth << "std::vector<" << BigWord(key) <<"> " << key << ";\n";
   } else {
     ss.make_struct <<depth << "TomlBase "<< key <<";\n";
   }
@@ -53,8 +53,8 @@ void InitPrintArray(std::shared_ptr<cpptoml::base> ptr, std::ostringstream &init
 
   auto n_depth = depth + "    ";
   auto nn_depth = n_depth + "    ";
-  auto first_item = *ptr->as_array()->begin();
-  if (first_item->is_array()) {
+  auto first_item = ptr->is_array() ? *ptr->as_array()->begin() : nullptr;
+  if (first_item && first_item->is_array()) {
     init_func << n_depth<< "for (auto item : *arr_"<< key<< "->as_array()) {\n";
     init_func << nn_depth << "auto arr_data = item;\n";
     init_func << nn_depth <<  "decltype("<<item1 <<")::value_type "<< item2<< ";\n";
@@ -62,21 +62,28 @@ void InitPrintArray(std::shared_ptr<cpptoml::base> ptr, std::ostringstream &init
     init_func << nn_depth << item1 <<".push_back(" << item2 <<");\n";
     init_func <<n_depth<< "}\n";
   } else {
-    init_func << n_depth<< "for (auto item : *arr_"<< key<< "->as_array()) {\n";
-    init_func << nn_depth<< item1 << ".push_back(item);\n";
-    init_func << n_depth<< "}\n";
+    if (ptr->is_table_array()) {
+      init_func << n_depth << "for (auto item : *arr_" << key << "->as_table_array()) {\n";
+      init_func << nn_depth << item1 << ".emplace_back();\n";
+      init_func << nn_depth << item1 << ".back().FromToml(item);\n";
+      init_func << n_depth << "}\n";
+    } else {
+      init_func << n_depth << "for (auto item : *arr_" << key << "->as_array()) {\n";
+      init_func << nn_depth << item1 << ".push_back(item);\n";
+      init_func << n_depth << "}\n";
+    }
   }
 }
 
 void InitPrint(std::shared_ptr<cpptoml::base> ptr, const std::string &key, std::ostringstream &init_func, std::string depth) {
   auto n_depth = depth + "    ";
-  if (ptr->is_array()) {
+  if (ptr->is_array() || ptr->is_table_array()) {
     auto d = 1;
     init_func << n_depth << "auto arr_" << key<<" = ptr->as_table()->get(\"" << key << "\");\n";
     init_func << n_depth << "decltype("<<key<<") arr_"<<key<<"_item"<< d <<";\n";
     InitPrintArray(ptr, init_func, depth, key, d + 1);
     init_func << n_depth << key <<" = " <<  "std::move(arr_"<<key<<"_item"<< d <<");\n";
-  }else if (ptr->is_table() || ptr->is_table_array()) {
+  }else if (ptr->is_table()) {
     init_func << n_depth << key <<".FromToml(ptr->as_table()->get(\""<< key<<"\"));\n";
   } else {
     init_func << n_depth << key << " = ptr->as_table()->get(\""<<key<<"\");\n";
@@ -119,7 +126,7 @@ void PrintStruct(std::shared_ptr<cpptoml::base> ptr, const std::string &key, Cpp
 
   } else if (ptr->is_table_array()) {
     ss.make_struct << "\n" << depth << "struct " << BigWord(key) << " {\n";
-    init_func <<"\n" << n_depth << "FromToml(std::shared_ptr<cpptoml::base> ptr){\n";
+    init_func <<"\n" << n_depth << "void FromToml(std::shared_ptr<cpptoml::base> ptr){\n";
     for (auto &item : **ptr->as_table_array()->begin()) {
       Print(item.second, item.first, ss, n_depth);
       InitPrint(item.second, item.first, init_func, n_depth);

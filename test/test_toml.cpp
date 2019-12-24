@@ -12,9 +12,9 @@ int main() {
   auto root = cpptoml::parse_file("config.toml");
   Root config;
   config.FromToml(root);
-  std::cout << config.title() <<std::endl;
-  std::cout << config.servers.connection_max.I() << std::endl;
-  std::cout << (config.servers.enabled.B() ? "true" : "false") << std::endl;
+  std::cout << config.title <<std::endl;
+  std::cout << config.servers.connection_max << std::endl;
+  std::cout << (config.servers.enabled ? "true" : "false") << std::endl;
   std::cout << "data list1: ";
   for (auto &item1 : config.servers.data[0]) {
     std::cout << item1()<<" ";
@@ -26,6 +26,6 @@ int main() {
   }
   std::cout << std::endl;
   for (auto &item : config.servers.connect_info) {
-    std::cout << "ip, port[" << item.ip() <<" ," << item.port() <<"]" << std::endl;
+    std::cout << "ip, port[" << item.ip <<" ," << item.port <<"]" << std::endl;
   }
 }

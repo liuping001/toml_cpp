@@ -1,7 +1,7 @@
 //
 // Created by lp on 2019/12/7.
 //
-
+#define CPPTOML_NO_RTTI
 #include "cpptoml.h"
 #include <iostream>
 #include <memory>
@@ -14,6 +14,22 @@ static std::string toml_base_dir;
 struct CppOut {
   std::ostringstream make_struct;
 };
+
+
+std::string Type(std::shared_ptr<cpptoml::base> ptr) {
+  using namespace cpptoml;
+  switch (ptr->type()) {
+    case base_type::STRING: return "std::string";
+    case base_type::LOCAL_TIME: return "cpptoml::local_time";
+    case base_type::LOCAL_DATE: return "cpptoml::local_date";
+    case base_type::LOCAL_DATETIME: return "cpptoml::local_datetime";
+    case base_type::OFFSET_DATETIME: return "cpptoml::offset_datetime";
+    case base_type::INT: return "int64_t";
+    case base_type::FLOAT: return "double";
+    case base_type::BOOL: return "bool";
+  }
+  return "error";
+}
 
 inline std::string BigWord(const std::string &org_word) {
   auto word = org_word;
@@ -47,7 +63,7 @@ void MakeStructDefine(std::shared_ptr<cpptoml::base> ptr,
   } else if (ptr->is_table_array()) {
     ss.make_struct << depth << "std::vector<" << BigWord(key) << "> " << key << ";\n";
   } else {
-    ss.make_struct << depth << "TomlBase " << key << ";\n";
+    ss.make_struct << depth << Type(ptr) <<" " << key << ";\n";
   }
 }
 
@@ -94,7 +110,7 @@ void MakeInitFunc(std::shared_ptr<cpptoml::base> ptr,
   } else if (ptr->is_table()) {
     init_func << n_depth << key << ".FromToml(ptr->as_table()->get(\"" << key << "\"));\n";
   } else {
-    init_func << n_depth << key << " = ptr->as_table()->get(\"" << key << "\");\n";
+    init_func << n_depth << key << " = ptr->as_table()->get(\"" << key << "\")->as<"<< Type(ptr) <<">()->get();\n";
   }
 }
 

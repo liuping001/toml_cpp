@@ -5,6 +5,7 @@
 #include "cpptoml.h"
 #include <iostream>
 #include <memory>
+#include <algorithm>
 
 namespace toml_cpp {
 
@@ -32,10 +33,20 @@ std::string Type(std::shared_ptr<cpptoml::base> ptr) {
 }
 
 inline std::string BigWord(const std::string &org_word) {
+  auto to_up = [](char c) -> char {
+    if (c >= 'a' && c <= 'z') {
+      return 'A' + (c - 'a');
+    }
+    return c;
+  };
+
   auto word = org_word;
-  if (word[0] >= 'a' && word[0] <= 'z') {
-    word[0] = 'A' + (word[0] - 'a');
+  for (size_t i = 0; i < word.size(); i++) {
+    if (i==0 || (i > 0 && word[i - 1] == '_')) {
+      word[i] = to_up(word[i]);
+    }
   }
+  word.erase(std::remove_if(word.begin(), word.end(), [](char c) { return c == '_';}), word.end());
   return word;
 }
 
@@ -148,6 +159,16 @@ void PrintStruct(std::shared_ptr<cpptoml::base> ptr, const std::string &key, Cpp
 }
 
 } // end namespace toml_cpp
+const std::string basename(const std::string &path) {
+  auto const pos = path.find_last_of('/');
+  return pos == path.npos ? path : path.substr(pos + 1);
+}
+
+const std::string dirname(const std::string &path) {
+  auto const pos = path.find_last_of('/');
+  return pos == path.npos ? "" : path.substr(0, pos);
+}
+
 
 using namespace toml_cpp;
 int main(int argc, char *argv[]) {
@@ -175,13 +196,13 @@ int main(int argc, char *argv[]) {
 
   try {
     auto root = cpptoml::parse_file(file);
-    auto file_name = std::string(basename(file.c_str()));
+    auto file_name = std::string(basename(file));
     auto hpp = file_name.substr(0, file_name.find("."));
 
     CppOut out;
     PrintStruct(root, "root", out, "");
 
-    std::ofstream fout(hpp + "_toml.hpp", std::ios::out);
+    std::ofstream fout(dirname(file) + "/" + hpp + "_toml.hpp", std::ios::out);
 
     if (!toml_base_dir.empty()) {
       if(toml_base_dir.back() != '/') toml_base_dir.push_back('/');

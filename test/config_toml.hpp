@@ -3,7 +3,7 @@
 
 namespace config_toml {
 
-struct Connect_info {
+struct ConnectInfo {
   std::string port;
   std::string ip;
 
@@ -16,7 +16,7 @@ struct Connect_info {
 struct Servers {
   std::vector<std::vector<TomlBase>> data;
   int64_t connection_max;
-  std::vector<Connect_info> connect_info;
+  std::vector<ConnectInfo> connect_info;
   bool enabled;
 
   void FromToml(std::shared_ptr<cpptoml::base> ptr){

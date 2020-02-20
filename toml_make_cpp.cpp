@@ -7,6 +7,26 @@
 #include <memory>
 #include <algorithm>
 
+const char *kTomlBase = "\n#ifndef TOML_BASE_STRUCT\n"
+                        "#define TOML_BASE_STRUCT\n"
+                        "struct TomlBase {\n"
+                        "  TomlBase(){}\n"
+                        "  TomlBase(std::shared_ptr<cpptoml::base> ptr) : ptr_(ptr) {}\n"
+                        "  std::string operator ()() const { return ptr_->as<std::string>()->get(); }\n"
+                        "  int64_t I() const { return ptr_->as<int64_t>()->get(); }\n"
+                        "  double D() const { return ptr_->as<double>()->get(); }\n"
+                        "  bool B() const { return ptr_->as<bool>()->get(); }\n"
+                        "#if defined(TOML_DATE)\n"
+                        "  cpptoml::local_date LocalDate() const { return ptr_->as<cpptoml::local_date>()->get(); }\n"
+                        "  cpptoml::local_time LocalTime() const { return ptr_->as<cpptoml::local_time>()->get(); }\n"
+                        "  cpptoml::local_datetime LocalDatetime() const { return ptr_->as<cpptoml::local_datetime>()->get(); }\n"
+                        "  cpptoml::offset_datetime OffsetDatetime() const { return ptr_->as<cpptoml::offset_datetime>()->get(); }\n"
+                        "#endif\n"
+                        " private:\n"
+                        "  std::shared_ptr<cpptoml::base> ptr_;\n"
+                        "};\n"
+                        "#endif\n\n";
+
 namespace toml_cpp {
 
 static std::string Tab;
@@ -100,7 +120,7 @@ void MakeInitArray(std::shared_ptr<cpptoml::base> ptr, std::ostringstream &init_
       init_func << nn_depth << item1 << ".back().FromToml(item);\n";
       init_func << n_depth << "}\n";
     } else {
-      init_func << n_depth << "for (auto item : *arr_" << key << "->as_array()) {\n";
+      init_func << n_depth << "for (auto item : *arr_data->as_array()) {\n";
       init_func << nn_depth << item1 << ".push_back(item);\n";
       init_func << n_depth << "}\n";
     }
@@ -175,7 +195,7 @@ int main(int argc, char *argv[]) {
   std::string file;
   auto tab = 2;
   if (argc < 3) {
-    std::cout << "toml_cpp -file file [-tab 2] [-toml_base 'third']\n";
+    std::cout << "toml_cpp -file file [-tab 2] [-date 1]\n";
     return -1;
   }
   for (int i = 2; i < argc; i = i + 2) {
@@ -202,13 +222,14 @@ int main(int argc, char *argv[]) {
     CppOut out;
     PrintStruct(root, "root", out, "");
 
-    std::ofstream fout(dirname(file) + "/" + hpp + "_toml.hpp", std::ios::out);
+    std::ofstream fout(hpp + "_toml.hpp", std::ios::out);
 
-    if (!toml_base_dir.empty()) {
-      if(toml_base_dir.back() != '/') toml_base_dir.push_back('/');
-    }
     fout << "#pragma once\n";
-    fout << "#include \""<< toml_base_dir << "toml_base.hpp\"\n\n";
+    fout << "#include \"thirdparty/cpptoml/cpptoml.h\"\n\n";
+    if (toml_base_dir=="1" || toml_base_dir=="true") {
+      fout <<"#define TOML_DATE 1";
+    }
+    fout << kTomlBase;
     fout << "namespace " << hpp << "_toml {\n";
     fout << out.make_struct.str() << "\n";
     fout << "} // end " << hpp << "_toml\n";

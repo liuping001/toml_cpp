@@ -7,6 +7,11 @@
 #include <memory>
 #include <algorithm>
 
+const char *kCommit = "/*********************************************************\n"
+                      "*\n"
+                      "* 文件自动生成. tool: https://github.com/liuping001/toml_cpp\n"
+                      "*\n"
+                      "**********************************************************/\n\n";
 const char *kTomlBase = "\n#ifndef TOML_BASE_STRUCT\n"
                         "#define TOML_BASE_STRUCT\n"
                         "struct TomlBase {\n"
@@ -229,6 +234,7 @@ int main(int argc, char *argv[]) {
     if (toml_base_dir=="1" || toml_base_dir=="true") {
       fout <<"#define TOML_DATE 1";
     }
+    fout << kCommit;
     fout << kTomlBase;
     fout << "namespace " << hpp << "_toml {\n";
     fout << out.make_struct.str() << "\n";

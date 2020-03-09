@@ -229,12 +229,12 @@ int main(int argc, char *argv[]) {
 
     std::ofstream fout(hpp + "_toml.hpp", std::ios::out);
 
+    fout << kCommit;
     fout << "#pragma once\n";
     fout << "#include \"thirdparty/cpptoml/cpptoml.h\"\n\n";
     if (toml_base_dir=="1" || toml_base_dir=="true") {
       fout <<"#define TOML_DATE 1";
     }
-    fout << kCommit;
     fout << kTomlBase;
     fout << "namespace " << hpp << "_toml {\n";
     fout << out.make_struct.str() << "\n";

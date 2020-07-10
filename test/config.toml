@@ -5,7 +5,7 @@ title = "TOML Example"
   addr = ["127.0.0.1:3001", "127.0.0.1:3002"]
 
 [clients]
-  data = [ ["game1", "game2"], [1001, 1002] ]
+  game = [ ["game1", "game2"], [1001, 1002] ]
 
 [redis]
   [[redis.connect_info]]

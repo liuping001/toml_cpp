@@ -85,20 +85,20 @@ struct Redis {
 };
 
 struct Clients {
-  std::vector<std::vector<TomlBase>> data;
+  std::vector<std::vector<TomlBase>> game;
 
   void FromToml(std::shared_ptr<cpptoml::base> ptr){
-    auto arr_data = ptr->as_table()->get("data");
-    decltype(data) arr_data_item1;
-    for (auto item : *arr_data->as_array()) {
+    auto arr_game = ptr->as_table()->get("game");
+    decltype(game) arr_game_item1;
+    for (auto item : *arr_game->as_array()) {
       auto arr_data = item;
-      decltype(arr_data_item1)::value_type arr_data_item2;
+      decltype(arr_game_item1)::value_type arr_game_item2;
       for (auto item : *arr_data->as_array()) {
-        arr_data_item2.push_back(item);
+        arr_game_item2.push_back(item);
       }
-      arr_data_item1.push_back(arr_data_item2);
+      arr_game_item1.push_back(arr_game_item2);
     }
-    data = std::move(arr_data_item1);
+    game = std::move(arr_game_item1);
   }
 };
 

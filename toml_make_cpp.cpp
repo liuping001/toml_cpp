@@ -18,6 +18,7 @@ const char *kTomlBase = "\n#ifndef TOML_BASE_STRUCT\n"
                         "  TomlBase(){}\n"
                         "  TomlBase(std::shared_ptr<cpptoml::base> ptr) : ptr_(ptr) {}\n"
                         "  std::string operator ()() const { return ptr_->as<std::string>()->get(); }\n"
+                        "  std::string S() const { return ptr_->as<std::string>()->get(); }\n"
                         "  int64_t I() const { return ptr_->as<int64_t>()->get(); }\n"
                         "  double D() const { return ptr_->as<double>()->get(); }\n"
                         "  bool B() const { return ptr_->as<bool>()->get(); }\n"
@@ -118,13 +119,14 @@ void MakeInitArray(std::shared_ptr<cpptoml::base> ptr, std::ostringstream &init_
     init_func << nn_depth << item1 << ".push_back(" << item2 << ");\n";
     init_func << n_depth << "}\n";
   } else {
+    auto real_key = d > 2 ? "data" : key;
     if (ptr->is_table_array()) {
-      init_func << n_depth << "for (auto item : *arr_" << key << "->as_table_array()) {\n";
+      init_func << n_depth << "for (auto item : *arr_" << real_key << "->as_table_array()) {\n";
       init_func << nn_depth << item1 << ".emplace_back();\n";
       init_func << nn_depth << item1 << ".back().FromToml(item);\n";
       init_func << n_depth << "}\n";
     } else {
-      init_func << n_depth << "for (auto item : *arr_" << key << "->as_array()) {\n";
+      init_func << n_depth << "for (auto item : *arr_" << real_key << "->as_array()) {\n";
       init_func << nn_depth << item1 << ".push_back(item);\n";
       init_func << n_depth << "}\n";
     }

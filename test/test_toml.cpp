@@ -23,13 +23,13 @@ TEST_F(test_toml) {
   ASSERT_EQ(config.servers.addr[0](), "127.0.0.1:3001");
   ASSERT_EQ(config.servers.addr[1](), "127.0.0.1:3002");
 
-  ASSERT_EQ(config.clients.data.size(), 2);
-  ASSERT_EQ(config.clients.data[0].size(), 2);
-  ASSERT_EQ(config.clients.data[1].size(), 2);
-  ASSERT_EQ(config.clients.data[0][0](), "game1");
-  ASSERT_EQ(config.clients.data[0][1](), "game2");
-  ASSERT_EQ(config.clients.data[1][0].I(), 1001);
-  ASSERT_EQ(config.clients.data[1][1].I(), 1002);
+  ASSERT_EQ(config.clients.game.size(), 2);
+  ASSERT_EQ(config.clients.game[0].size(), 2);
+  ASSERT_EQ(config.clients.game[1].size(), 2);
+  ASSERT_EQ(config.clients.game[0][0](), "game1");
+  ASSERT_EQ(config.clients.game[0][1](), "game2");
+  ASSERT_EQ(config.clients.game[1][0].I(), 1001);
+  ASSERT_EQ(config.clients.game[1][1].I(), 1002);
 
   ASSERT_EQ(config.redis.connect_info.size(), 2);
   ASSERT_EQ(config.redis.connect_info[0].ip, "192.168.0.1");

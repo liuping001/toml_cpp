@@ -20,12 +20,12 @@ TEST_F(test_toml) {
   ASSERT_EQ(config.servers.connection_max, 5000);
   ASSERT_EQ(config.servers.enabled, true);
   ASSERT_EQ(config.servers.addr.size(), 2);
-  ASSERT_EQ(config.servers.addr.at(0)(), "127.0.0.1:3001");
-  ASSERT_EQ(config.servers.addr.at(1)(), "127.0.0.1:3002");
+  ASSERT_EQ(config.servers.addr[0](), "127.0.0.1:3001");
+  ASSERT_EQ(config.servers.addr[1](), "127.0.0.1:3002");
 
   ASSERT_EQ(config.clients.data.size(), 2);
   ASSERT_EQ(config.clients.data[0].size(), 2);
-  ASSERT_EQ(config.clients.data.at(1).size(), 2);
+  ASSERT_EQ(config.clients.data[1].size(), 2);
   ASSERT_EQ(config.clients.data[0][0](), "game1");
   ASSERT_EQ(config.clients.data[0][1](), "game2");
   ASSERT_EQ(config.clients.data[1][0].I(), 1001);

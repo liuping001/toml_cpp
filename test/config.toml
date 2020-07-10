@@ -2,10 +2,25 @@ title = "TOML Example"
 [servers]
   connection_max = 5000
   enabled = true
-  data = [ ["game1", "game2"], [4, 2] ]
-  [[servers.connect_info]]
-    ip = "10.0.0.1"
+  addr = ["127.0.0.1:3001", "127.0.0.1:3002"]
+
+[clients]
+  data = [ ["game1", "game2"], [1001, 1002] ]
+
+[redis]
+  [[redis.connect_info]]
+    ip = "192.168.0.1"
     port = "9000"
-  [[servers.connect_info]]
-    ip = "10.0.0.2"
+  [[redis.connect_info]]
+    ip = "192.168.0.2"
     port = "9001"
+
+[mysql]
+  # 你可以依照你的意愿缩进。使用空格或Tab。TOML不会在意。
+  [mysql.record]
+  ip = "10.0.0.1"
+  pwd = "eqdc10"
+
+  [mysql.conf]
+  ip = "10.0.0.2"
+  pwd = "eqdc10"

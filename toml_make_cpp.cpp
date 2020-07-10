@@ -35,7 +35,6 @@ const char *kTomlBase = "\n#ifndef TOML_BASE_STRUCT\n"
 namespace toml_cpp {
 
 static std::string Tab;
-static std::string toml_base_dir;
 
 struct CppOut {
   std::ostringstream make_struct;
@@ -125,7 +124,7 @@ void MakeInitArray(std::shared_ptr<cpptoml::base> ptr, std::ostringstream &init_
       init_func << nn_depth << item1 << ".back().FromToml(item);\n";
       init_func << n_depth << "}\n";
     } else {
-      init_func << n_depth << "for (auto item : *arr_data->as_array()) {\n";
+      init_func << n_depth << "for (auto item : *arr_" << key << "->as_array()) {\n";
       init_func << nn_depth << item1 << ".push_back(item);\n";
       init_func << n_depth << "}\n";
     }
@@ -198,6 +197,7 @@ const std::string dirname(const std::string &path) {
 using namespace toml_cpp;
 int main(int argc, char *argv[]) {
   std::string file;
+  std::string toml_date_flag;
   auto tab = 2;
   if (argc < 3) {
     std::cout << "toml_cpp -file file [-tab 2] [-date 1]\n";
@@ -208,8 +208,8 @@ int main(int argc, char *argv[]) {
       file = argv[i];
     } else if (strcmp(argv[i - 1], "-tab") == 0) {
       tab = std::stoi(argv[i]);
-    } else if (strcmp(argv[i - 1], "-toml_base") == 0) {
-      toml_base_dir = argv[i];
+    } else if (strcmp(argv[i - 1], "-date") == 0) {
+      toml_date_flag = argv[i];
     } else {
       std::cout << "not find option: " << argv[i - 1] << std::endl;
       return -2;
@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
     fout << kCommit;
     fout << "#pragma once\n";
     fout << "#include \"thirdparty/cpptoml/cpptoml.h\"\n\n";
-    if (toml_base_dir=="1" || toml_base_dir=="true") {
+    if (toml_date_flag=="1") {
       fout <<"#define TOML_DATE 1";
     }
     fout << kTomlBase;
